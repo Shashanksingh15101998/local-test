@@ -1,41 +1,47 @@
 name: Terraform GCP
 
-on:
-  push:
-    branches:
-      - main
+on: 
+ push:
+  branches:
+    - main
 
 permissions:
   contents: read
   id-token: write
 
 jobs:
-  terraform:
-    name: Terraform Plan and Apply
-    runs-on: ubuntu-latest
+ terraform:
+  runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: projects/344585657590/locations/global/workloadIdentityPools/myproject/providers/myproject
-          service_account: product@nifty-oxide-483409-s0.iam.gserviceaccount.com
+    - name: Setup terraform
+      uses: hashicorp/setup-terraform@v3
+    # with:
+       #terraform_version: 1.6.6
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: "projects/344585657590/locations/global/workloadIdentityPools/myassignment/providers/logics" 
+        service_account: "second@nifty-oxide-483409-s0.iam.gserviceaccount.com"
 
-      - name: Terraform Init
-        run: terraform init
 
-      - name: Terraform Plan
-        run: terraform plan
+    - name: Terraform Init
+      run: terraform init
 
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve
+    - name: Terraform Validate
+      run: terraform validate
+
+    - name: Terraform Plan
+      run: terraform plan
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -auto-approve
+      
 
 
 
